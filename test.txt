@@ -1,1 +1,2 @@
-voici un test 
+Voici un test avec une majuscule,
+et de la ponctuation. 
