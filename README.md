@@ -1,0 +1,4 @@
+Xchar
+=====
+
+an OCR project 
