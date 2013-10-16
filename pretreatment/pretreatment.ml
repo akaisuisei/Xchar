@@ -1,4 +1,4 @@
-
+ 
 let first (a,b,c)=a
 let whiteorblack x=  match x with
     x when x<128 -> 0
