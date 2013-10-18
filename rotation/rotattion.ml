@@ -27,17 +27,19 @@ let show img dst =
 (*
 let rotate img angle =
 	Sdlgfx.rotozoomSurface img angle 1. false
-
-let max matrix=
-let (maxi,mtheta,mrot)= (0,0,0) in
-for theta= 0 to 180 do
-	for rot=0 to 180 do
-		if maxi < matrix.(theta).(rot) then
-			mrot<-rot
-	done
-done 
-matrix.(mtheta).(mrot)
 *)
+let max matrix=
+	let (maxi,mtheta,mrot)= (0,0,0) in
+	for theta= 0 to 180 do
+		for rot=0 to 180 do
+			if maxi < matrix.(theta).(rot) then
+				begin
+				mrot<-rot
+				end
+		done
+	done 
+	(mtheta,mrot)
+
 let detect_angle img =
 	let (w,h)=get_dims img in
 	let (w2,h2)= (w/2,h/2) in
