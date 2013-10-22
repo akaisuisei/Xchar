@@ -27,7 +27,7 @@ let show img dst =
 
 let main _=
 	let diver = ref 0 in
-	let rotok= ref (-1) and d_rot = ref 0 and b_show = ref false in
+	let rotok= ref 0 and d_rot = ref 0 and b_show = ref false in
 	let range = Array.lenght Sys.argv in
 	for i = 1 to range do
 		match Sys.argv.(i) with
@@ -43,7 +43,7 @@ let main _=
 	let (w,h) = get_dims img in 
 	(*truc de cedric*)
 	let a = 0 in
-	if rotok > 0 then
+	if rotok <> 0 then
 		a <- rotok;
 	else
 		a <- Rotation.detect_angle img2;

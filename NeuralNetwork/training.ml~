@@ -22,7 +22,7 @@ method t (mat:float array array) =
   done;
   sol
 
-(* fait la multiplication d'une matrice et d'un vecteur *)
+(* fait la multiplacation d'une matrice et d'un vecteur *)
 method mult mat1 mat2 =
   let result = Array.make (Array.length mat1) 1. in
   for i = 0 to (Array.length mat1)-1 do
