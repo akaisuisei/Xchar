@@ -1,93 +1,106 @@
- 
-let first (a,b,c)=a
-let whiteorblack x=  match x with
-    x when x<128 -> 0
-  | _ -> 255
+(*////Easy part\\\\*)
+(* Use the adequate values for threesolds!*)
 
-let flemme a= float_of_int a
-let flemme2 b= int_of_float b
-let level (r,g,b)= ((flemme r *.0.3 +. flemme g *. 0.59 +. flemme b *. 0.11)/.255.0)
+
+let get_dims img =
+  ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h)
+
+
+let first (a,b,c)=a;;
+
+(*                 *)
+(*   Grayscale     *)
+(*                 *)
 
 let color2gray (r,g,b)= 
-  let alpha= flemme2 (level (r,g,b)*.255.0) in
-  (alpha,alpha,alpha)
+  let gray=int_of_float (float_of_int r *. 0.3 +. float_of_int g *. 0.59 +. float_of_int b *. 0.11) in (gray,gray,gray);;
 
+let image2gray img=
+  let (w,h)= get_dims img in
+   let test= Sdlvideo.create_RGB_surface_format img [] w h in
+  for i=0 to w-1 do
+    for j=0 to h-1 do
+      Sdlvideo.put_pixel_color test i j ( (color2gray (Sdlvideo.get_pixel_color img i j)));
+    done;
+  done;
+test
+;;
 
-(*                         *)      
-(*      GRAYSCALE          *)
-(*                         *)
+(*                 *)
+(*  Binarization   *)
+(*                 *)
 
-let image2gray src=
-  let (w,h)=get_dims src in
-  for i=0 to (w-1) do
-    for j=0 to (h-1) do
-      Sdlvideo.put_pixel_color src i j (color2gray(Sdlvideo.get_pixel_color src i j))
-    done
-  done
+(* the thresold will be adapted to the picture in a near future *)
+(* current thresold: between 190 and 200, 200 being quite good  *)
 
-(*                         *)      
-(*     BLACK AND WHITE     *)
-(*                         *)
+let binarization img thresold=
+  let (w,h)= get_dims img in
+  let test= Sdlvideo.create_RGB_surface_format img [] w h in
+  for i=0 to w-1 do
+    for j=0 to h-1 do
+      if (first (Sdlvideo.get_pixel_color img i j) < thresold ) then
+	(
+	Sdlvideo.put_pixel_color test i j (0,0,0);
+	)
+      else 
+	(
+	Sdlvideo.put_pixel_color test i j (255,255,255);
+	)
+    done;
+  done;
+test
+;;
 
-let image2black src=
-  let (w,h)=get_dims src in
-  for i=0 to (w-1) do
-    for j=0 to (h-1) do
-      if (first ( Sdlvideo.get_pixel_color src i j)) >175 then 
-      Sdlvideo.put_pixel_color src i j (255,255,255)
-	  else 
-      Sdlvideo.put_pixel_color src i j (0,0,0)
-    done
-  done
+(*                 *)
+(*     Average     *)
+(*     Filter      *)
 
-(*                         *)      
-(*     MEDIAN FILTER       *)
-(*                         *)
+(*We use a thresold to improve the accuracy and prevent part of chars to be removed*)
+(* CURRENT THRESOLD: 165, DO NOT CHANGE THE VALUE PLEASE *)
 
-let median_filter img out=
-  let (w,h)= get_dims img  in
-  for i=1 to w-1 do
-    for j=1 to h-1 do
-      let acc=ref 0 in
+let average img thresold= 
+  let (w,h)=get_dims img in
+   let top= Sdlvideo.create_RGB_surface_format img [] w h in
+  for x=0 to w-1 do
+    for y=0 to h-1 do
+      Sdlvideo.put_pixel_color top x y (Sdlvideo.get_pixel_color img x y);
+    done;
+  done;
+  for i=1 to w-2 do
+    for j=1 to h-2 do
+      if (first (Sdlvideo.get_pixel_color img i j)<thresold) then
+	(
+      let acc= ref 0 in
       for a=i-1 to i+1 do
-        for b=j-1 to j+1 do
-	  (*  if (a<>i && b<>j) then *)
-          acc:=!acc+first (Sdlvideo.get_pixel_color img a b);
-        done;
-      done;
-      let alpha=whiteorblack ((!acc)/9) in
-      Sdlvideo.put_pixel_color out i j (alpha,alpha,alpha);
-      acc:=0;
-    done
-  done
+	for b=j-1 to j+1 do
+	  acc:= !acc+ first (Sdlvideo.get_pixel_color img a b);
+	done;
+      done;      
+      let va= !acc / 9 in
+      Sdlvideo.put_pixel_color top i j (va,va,va);
+	)
+      
+    done;
+  done;
+top
+;;
 
-(*                         *)      
-(*        USELESS          *)
-(*                         *)
+(* Dimensions d'une image *)
 
+ 
 (* init de SDL *)
 let sdl_init () =
   begin
     Sdl.init [`EVERYTHING];
     Sdlevent.enable_events Sdlevent.all_events_mask;
   end
-
-
-(* Dimensions d'une image *)
-		     let get_dims img =
-  ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h)
-
-
-
-
-
-
+ 
 (* attendre une touche ... *)
 let rec wait_key () =
   let e = Sdlevent.wait_event () in
     match e with
     Sdlevent.KEYDOWN _ -> ()
-    | _ -> wait_key ()
+      | _ -> wait_key ()
  
 (*
   show img dst
@@ -98,53 +111,38 @@ let show img dst =
     Sdlvideo.blit_surface d dst ();
     Sdlvideo.flip dst
  
-
-
-	    
-	    
-
-(* main *)let main () =
-	    begin
+(* main *)
+let main () =
+  begin
     (* Nous voulons 1 argument *)
     if Array.length (Sys.argv) < 2 then
       failwith "Il manque le nom du fichier!";
     (* Initialisation de SDL *)
     sdl_init ();
-    
     (* Chargement d'une image *)
-    let img = Sdlloader.load_image Sys.argv.(1) in
-	    let (w,h)=get_dims img in
-    let out= Sdlvideo.create_RGB_surface_format img [] w h in
+    let img = Sdlloader.load_image Sys.argv.(1) and out=Sdlloader.load_image Sys.argv.(2) in
     (* On récupère les dimensions *)
     let (w,h) = get_dims img in
     (* On crée la surface d'affichage en doublebuffering *)
-     
-       let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
-       Sdlvideo.put_pixel_color img 12 12 (0,0,0);
-       show img  display;
-       wait_key ();
-       image2gray img;
-       show img  display; 
-       wait_key ();
-       Sdlvideo.save_BMP  img "gris.BMP";
-
+    let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
       (* on affiche l'image *)
-      image2black img;
-      show img  display;
-      Sdlvideo.save_BMP  img "noiretblanc2.BMP";
+      show img display;
       (* on attend une touche *)
       wait_key ();
-      median_filter img out;
-      show img  display;
-      Sdlvideo.save_BMP  out "filtre.BMP";
-
- 
+    show (image2gray img) display;
+    wait_key ();
+    show (average (image2gray img) 165) display;
+    wait_key ();
+    show (binarization (average (image2gray img) 165) 200) display;
+    
+    wait_key ();
+    Sdlvideo.save_BMP  out "picture.BMP";
+    
       (* on quitte *)
-     wait_key ();
       exit 0
-	    end
-
-	  let _ = main ()
+  end
+ 
+let _ = main ()
 
 
 
