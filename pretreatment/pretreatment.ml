@@ -133,7 +133,7 @@ let main () =
     wait_key ();
     show (average (image2gray img) 165) display;
     wait_key ();
-    show (binarization (average (image2gray img) 140) 200) display;
+    show (binarization (average (image2gray img) 165) 200) display;
     
     wait_key ();
     Sdlvideo.save_BMP  out "picture.BMP";
