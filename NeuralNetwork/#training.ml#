@@ -147,6 +147,7 @@ method all (p:ann) inputs (outputs:float array array) =
   and loop = ref true
   in
   while !sol do
+    p#randominit;
     self#train p inputs outputs;
     for i = 0 to Array.length outputs -1 do
       for j = 0 to Array.length outputs.(0) -1 do

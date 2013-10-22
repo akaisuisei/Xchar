@@ -1,0 +1,103 @@
+commit ad8df0821418dbdc52294fa7a099e49a0e0d3325
+Author: Louis <cal@ubuntu.(none)>
+Date:   Mon Oct 21 20:39:39 2013 +0200
+
+    NN's comments
+
+commit 2da0d2261c98929247a9a408c490bf1b26497e43
+Author: Louis <cal@ubuntu.(none)>
+Date:   Mon Oct 21 19:51:41 2013 +0200
+
+    Ajout du NN. Normalisation des fonctions et commentages en cours.
+
+commit 79f4ac033e3bce9614dd9dcfb56a0e06728bfedd
+Author: Geoffrey <clumsy_ape@Jeff.(none)>
+Date:   Mon Oct 21 19:41:24 2013 +0200
+
+    Reconnaissance des caractères -non fonctionnelle.
+
+commit 4b5c806d49966dcf11a741842bfad06ec497c343
+Author: Geoffrey <clumsy_ape@Jeff.(none)>
+Date:   Mon Oct 21 19:32:53 2013 +0200
+
+    Inutile.
+
+commit 97d6da90a447e47e17df49072eabfcfe01cb375d
+Merge: 79cb09f f48f0a6
+Author: Geoffrey <clumsy_ape@Jeff.(none)>
+Date:   Mon Oct 21 19:27:38 2013 +0200
+
+    Merge branch 'master' of https://github.com/akaisuisei/Xchar.git
+
+commit 79cb09fced8d7b13ddb442690d5c1fa15bd59ac4
+Author: Geoffrey <clumsy_ape@Jeff.(none)>
+Date:   Sun Oct 20 18:56:08 2013 +0200
+
+    Détection des caractères (incomplet).
+
+commit f48f0a6f38f403b18864b676469712dfd6db356f
+Merge: 32be20c c716a03
+Author: akaisuisei <bjaykamwa@hotmail.com>
+Date:   Fri Oct 18 23:20:33 2013 +0200
+
+    Merge branch 'master' of https://github.com/akaisuisei/Xchar.git
+
+commit 32be20cfd6a2a596b10ae4470dc1cbc630005d5f
+Author: akaisuisei <bjaykamwa@hotmail.com>
+Date:   Fri Oct 18 23:18:43 2013 +0200
+
+    rotation essaie
+
+commit 0e3b0a6ac153cecf9d06f96a8064d6e6b81e25d7
+Author: Geoffrey <clumsy_ape@Jeff.(none)>
+Date:   Fri Oct 18 20:40:52 2013 +0200
+
+    J'ai fait un dossier. WOUAH MAXI SWAG
+
+commit c716a039a24352f36618ccc61f2b064303abc012
+Author: lemko <cinema94@hotmail.fr>
+Date:   Thu Oct 17 00:55:18 2013 +0200
+
+    ajout de pretreatment.ml
+
+commit f6f1b42517e4a759947f640ad60e5ff7a6be98b8
+Author: lemko <cinema94@hotmail.fr>
+Date:   Thu Oct 17 00:48:36 2013 +0200
+
+    Ajout du prétraitement de l'image
+
+commit 65084c7bb8c4148be89232f31aa9ab7a22008f0c
+Author: Geoffrey <clumsy_ape@Jeff.(none)>
+Date:   Thu Oct 17 00:15:45 2013 +0200
+
+    Suppression de la marge gauche et de la marge droite.
+
+commit 23483fe3b42d5d487c7d484e335ed3d45e8eb15e
+Author: akaisuisei <bjaykamwa@hotmail.com>
+Date:   Wed Oct 16 00:20:14 2013 +0200
+
+    detection d angle
+
+commit 626410b5414499f055c44ed95b391e0f7028028a
+Author: akaisuisei <bjaykamwa@hotmail.com>
+Date:   Fri Oct 4 11:08:08 2013 +0200
+
+    test 3
+
+commit 90f294a806415c99fa7cc55058407af609d44509
+Author: geoffrey legourrierec <legour_g@new-user.(none)>
+Date:   Fri Oct 4 11:04:15 2013 +0200
+
+    Vive la grammaire.
+
+commit 2a34940a0a81149f0418d75a91940ea23e09fb89
+Author: geoffrey legourrierec <legour_g@new-user.(none)>
+Date:   Fri Oct 4 10:50:17 2013 +0200
+
+    test 1
+
+commit cb6505baa0e7a4fdaf33e0eab8caf15c2426fa7a
+Author: akaisuisei <b.watanabe@live.fr>
+Date:   Fri Oct 4 01:19:37 2013 -0700
+
+    Initial commit
