@@ -26,7 +26,6 @@ let show img dst =
 
 
 let main ()=
-	begin
 	let diver = ref 0 and a = ref 0 in
 	let rotok= ref false and d_rot = ref 0 and b_show = ref false in
 	let range = Array.length Sys.argv in
@@ -47,7 +46,9 @@ let main ()=
 	let img2 = Pretreatment.average ( img1) 165 in
 	let img3 = Pretreatment.binarization (Pretreatment.average img1 140) 200 in
 	if not !rotok then
+	begin
 		a := Rotation.detect_angle img3 ;
+	end
 	let img4 = Rotation.rotate img3 !a in
 	let img5 = Recognition.recognition img4 in
 	let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
@@ -70,6 +71,5 @@ let main ()=
 	show img5 display;
 	wait_key ();
 	exit 0
-	end
 
 let _ =  main ()
