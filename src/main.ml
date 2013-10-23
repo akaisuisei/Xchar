@@ -24,38 +24,35 @@ let show img dst =
 	Sdlvideo.blit_surface d dst ();
 	Sdlvideo.flip dst
 
-
 let main ()=
-	let diver = ref 0 and a = ref 0 in
+	begin
 	let rotok= ref false and d_rot = ref 0 and b_show = ref false in
 	let range = Array.length Sys.argv in
-	for i = 1 to range do
+	for i = 0 to range -1 do
+		begin
 		match Sys.argv.(i) with
-			| "-r" -> if i + 1 < range then
+			| "-r" -> if i + 1 < range -1 then
 	  			begin
 	    			rotok := true;
-	    			a := int_of_string ( Sys.argv.(i+1) );
+	    			d_rot := int_of_string (Sys.argv.(i+1))
 	  			end
-			| "-s" -> b_show := true;
-			| _ -> diver := 1; 
+			| "-s" -> b_show := true
+			| _ -> ()
+		end
 	done;
-	sdl_init();
+	sdl_init ();
 	let img = Sdlloader.load_image Sys.argv.(1) in
 	let (w,h) = get_dims img in 
 	let img1 = Pretreatment.image2gray img in
-	let img2 = Pretreatment.average ( img1) 165 in
+	let img2 = Pretreatment.average (img1) 165 in
 	let img3 = Pretreatment.binarization (Pretreatment.average img1 140) 200 in
-	if not !rotok then
-	begin
-		a := Rotation.detect_angle img3 ;
-	end
-	let img4 = Rotation.rotate img3 !a in
+	let a = (fun x y b -> if b then x else y ) !d_rot (Rotation.detect_angle img3) !rotok in
+let img4 = Rotation.rotate img3 a in
 	let img5 = Recognition.recognition img4 in
 	let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
+	(fun x -> if x then
 	show img display;
 	wait_key ();
-	if !b_show then
-		begin
 		show img1 display;
 		wait_key ();
 		show img2 display;
@@ -66,10 +63,11 @@ let main ()=
 		wait_key ();
 		show img5 display;
 		wait_key ();
-		end
+	) !b_show;
 
 	show img5 display;
 	wait_key ();
 	exit 0
+	end
 
 let _ =  main ()

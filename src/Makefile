@@ -7,7 +7,7 @@ SOURCES += rotation.ml
 SOURCES += recognition.ml
 SOURCES += main.ml
 
-EXEC = socr
+EXEC = X_Char
 
 ###############################################################################
 ##################### DO NOT EDIT BELOW (OR YOU WILL DIE) #####################
