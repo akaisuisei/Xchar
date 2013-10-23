@@ -26,32 +26,36 @@ let show img dst =
 
 
 let main ()=
+	begin
   let diver = ref 0 in
   let rotok= ref false and d_rot = ref 0 and b_show = ref false in
-  let range = Array.lenght Sys.argv in
+  let range = Array.length Sys.argv in
   for i = 1 to range do
     match Sys.argv.(i) with
       | "-r" -> if i + 1 < range then
 	  begin
 	    rotok := true;
-	    d_rot := int_of_string (Array.lenght Sys.argv.(i+1) );
+	    d_rot := int_of_string ( Sys.argv.(i+1) );
 	  end
-      | "-s" -> show := true
-      | _ -> divers := 1; 
-  done
-let img = Sdlloader.load_image Sys.argv.(1);
+      | "-s" -> b_show := true
+      | _ -> diver := 1; 
+  done;
+	sdl_init();
+let img = Sdlloader.load_image Sys.argv.(1) in
   let (w,h) = get_dims img in 
   let img1 = Pretreatment.image2gray img in
   let img2 = Pretreatment.average ( img1) 165 in
-  let img3 = Pretreatment.binarization (average img1 140) 200 in
-  let a = 0 in
-  if rotok  then
-    a <- d_rot ;
+  let img3 = Pretreatment.binarization (Pretreatment.average img1 140) 200 in
+  let a = ref 0 in
+  if !rotok  then
+	begin
+    a := !d_rot ;
+	end
 	else
-  a <- Rotation.detect_angle img3;
+  a := Rotation.detect_angle img3;
   
-  let img4 = Rotation.rotate img3 a in
-  let img5 = Recognition.identifyChars img4 in
+  let img4 = Rotation.rotate img3 !a in
+  let img5 = Recognition.identifyChar img4 in
   let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
   show img display;
   wait_key ();
@@ -66,9 +70,10 @@ let img = Sdlloader.load_image Sys.argv.(1);
       show img4 display;
       wait_key ();
       show img5 display;
-      wait_key ()
+      wait_key ();
     end
       show img5 display;
   wait_key ();
-  
-  let _ =  main ();
+  exit 0
+	end
+  let _ =  main ()
