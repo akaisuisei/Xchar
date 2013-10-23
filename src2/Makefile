@@ -5,8 +5,9 @@
 SOURCES = ANU.ml
 SOURCES += ANN.ml
 SOURCES += training.ml
+SOURCES += reseau.ml
 
-EXEC = training
+EXEC = reseau
 ###############################################################################
 ##################### DO NOT EDIT BELOW (OR YOU WILL DIE) #####################
 ###############################################################################

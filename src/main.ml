@@ -69,10 +69,6 @@ let img = Sdlloader.load_image Sys.argv.(1);
       wait_key ()
     end
       show img5 display;
-  let anna = new ann 2 2 1
-  and train = new training ()
-  and inputs = Array.make_matrix 4 2 0.
-  and ouputs = Array.make 4 0.
   wait_key ();
   
   let _ =  main ();

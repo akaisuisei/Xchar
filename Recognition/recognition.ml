@@ -29,7 +29,7 @@ let copyImg img =
     surface
   end
 
-(*Colorie une ligne d'une image.*)
+(*Colorie une ligne d'une image.*) (*Fonction test.*)
 let colorLine img ord =
   begin
     let surface = ref (copyImg !img) in
@@ -39,7 +39,7 @@ let colorLine img ord =
     img := !surface
   end
 
-(*Encadre les lignes avec la hauteur normalisée.*)
+(*Encadre les lignes avec la hauteur normalisée.*) (*Fonction test.*)
 let identifyLines img height list =
   begin
     let surface = ref (copyImg !img) in
@@ -50,11 +50,12 @@ let identifyLines img height list =
     img := !surface
   end
 
-let identifyChar img abs ord height =
+(*Délimite par des colonnes colorées les caractères.*) (*Fonction de test.*)
+let identifyChar img abs ord height color =
   begin
     let surface = ref (copyImg !img) in
     for i=ord to ord + height - 1 do
-      Sdlvideo.put_pixel_color !surface abs i Sdlvideo.red
+      Sdlvideo.put_pixel_color !surface abs i color
     done;
     img := !surface
   end
@@ -112,42 +113,62 @@ let normalizeH img =
 	      (whiteLine := !whiteLine + 1)
         done
       done;
-    let array = Array.of_list !list2 in
-    (max !list, array)
+    let lines = Array.of_list !list2 in
+    (max !list, lines)
   end
 
-let normalizeW img height array =
+(*Prend une image et stocke la largeur normalisée
+(cette dernière n'est pas encore utilisée pour des raisons de performances).*)
+let normalizeW img maxH lines =
   begin
     let start = findStart img
     and list3 = ref []
-    and (width, height) = get_dims !img
+    and width = (Sdlvideo.surface_info !img).Sdlvideo.w
     and inChar = ref false
     and countW = ref 0 
     and whiteLine = ref 0 in
-    for i=0 to ((Array.length array) - 1) do
+    for i=0 to (Array.length lines) - 1 do
       for abs=start to width - 1 do
-	for ord=(array.(i)) to array.(i) + height - 1 do
-	  (if (ord = (array.(i) + height - 1)) then
-	    (if ((!inChar = true) && (!whiteLine = ord)) then
-		(inChar := false;
-		 list3 := !list3 @ [!countW];
-		 countW := 0;
-		 identifyChar img (abs-1) array.(i) height)
-	     else if (!inChar = true) then
-		(countW := !countW + 1);
-	     whiteLine := 0)
-	  else if ((!inChar = false)
-	    && (Sdlvideo.get_pixel_color !img abs ord = Sdlvideo.black)) then
-	    (inChar := true;
-	     identifyChar img (abs-1) array.(i) height)
-	  else if (Sdlvideo.get_pixel_color !img abs ord = Sdlvideo.white) then
-	    (whiteLine := !whiteLine + 1))
-	done
-      done
+	for ord=lines.(i) to lines.(i) + maxH - 1 do
+	  if (Sdlvideo.get_pixel_color !img abs ord = Sdlvideo.black) then
+	    (if (!inChar = false) then
+		(inChar := true;
+	        identifyChar img (abs-1) lines.(i) maxH Sdlvideo.blue)
+	     else
+	       (if (ord = lines.(i) + maxH - 1) then
+		   countW := !countW + 1))
+          else if (Sdlvideo.get_pixel_color !img abs ord = Sdlvideo.white) then
+	    (if (ord = lines.(i) + maxH - 1) then
+		(if (!inChar = true) then
+		    (if (!whiteLine = maxH - 1) then
+		    (identifyChar img abs lines.(i) maxH Sdlvideo.red;
+		     inChar := false;
+		     list3 := !list3 @ [!countW]))
+		 else
+		    (countW := !countW + 1))
+	     else
+		(whiteLine := !whiteLine + 1))
+	done;
+	whiteLine := 0;
+      done;
+      whiteLine := 0;
+      countW := 0;
+      inChar := false;
     done;
     (*max !list3*)
+  end 
+
+(*Rassemble en une fonction la reconnaissance de caractères,
+et renvoie l'image correspondante.*)
+let recognition img =
+  begin
+    let image = ref img in
+    let (maxHeight, lines) = normalizeH image in
+    normalizeW image maxHeight lines;
+    let newImage = !image in
+    newImage
   end
- 
+
 (* init de SDL *)
 let sdl_init () =
   begin
@@ -180,16 +201,16 @@ let main () =
     (* Initialisation de SDL *)
     sdl_init ();
     (* Chargement d'une image *)
-    let img = ref (Sdlloader.load_image Sys.argv.(1)) in
-    let (w,h) = get_dims !img in
+    let img = (Sdlloader.load_image Sys.argv.(1)) in
+    let (w,h) = get_dims img in
     (* On crée la surface d'affichage en doublebuffering *)
     let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
       (* on affiche l'image *)
-      show !img display;
+      show img display;
       (* on attend une touche *)
       wait_key ();
-      let (max, array) = normalizeH img in
-      normalizeW img max array;
+      let image = recognition img in
+      show image display;
       wait_key ();
       (* on quitte *)
       exit 0
