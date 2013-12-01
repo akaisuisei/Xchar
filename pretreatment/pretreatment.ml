@@ -2,6 +2,7 @@
 (* Use the adequate values for threesolds!*)
 
 
+
 let get_dims img =
   ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h)
 
