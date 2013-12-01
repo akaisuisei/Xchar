@@ -52,6 +52,10 @@ let binarization img thresold=
 test
 ;;
 
+
+(* OTSU *)
+(* HISTOGRAM*)
+
 (*                 *)
 (*     Average     *)
 (*     Filter      *)
