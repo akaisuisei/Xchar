@@ -1,4 +1,3 @@
-
 (*Sdl *)
 let get_dims img =
   ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h);;
@@ -48,7 +47,7 @@ test
 
 
 
-(*Otsu's method to binarize the picture, we also write the thresold and the variance*)
+(*Otsu's method to binarize the picture*)
 
  let otsu img =
    let (width,height) = get_dims img in
