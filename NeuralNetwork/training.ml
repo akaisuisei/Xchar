@@ -1,8 +1,10 @@
 class training () = 
 object (self)
 
+  val mutable dbias = Array.make 2 0.;
+
 (* renvoie les ouputs du reseau de neurones pour chaque cas donné par les inputs *)
-method get_result inputs (anna:ann) =
+method get_result inputs (anna: ANN.ann) =
   let result = Array.make_matrix (Array.length inputs) 1 1. in
   for i = 0 to (Array.length inputs)-1 do
     (anna#forward_propagation inputs.(i) (anna#get 1) (anna#get 2));
@@ -35,12 +37,13 @@ method mult mat1 mat2 =
   done;
   result
 (* Calcul de l'erreur d'une hidden layer *)
-method delta mw error (activation:float array) = 
+method delta mw error (activation:float array) a = 
   let result = self#mult (self#t mw) error
   and sol = Array.make (Array.length activation) 1. in
   for i = 0 to Array.length sol-1 do
     sol.(i)<- result.(i+1) *. (activation.(i) *. (1. -. activation.(i)))
   done;
+  dbias.(a) <- dbias.(a) +. result.(0);
   sol
 
 (* fait une multiplacation de deux vecteur X,1 pour avoir une matrice X,X *)
@@ -63,16 +66,18 @@ method first_error activation hopes  =
   result
 
 (* met à jour les poids du NN *)
-method update_weights mw1 mw2 d1 d2  = 
+method update_weights mw1 mw2 d1 d2 lmw1 lmw2 = 
   for i = 0 to Array.length d1 -1 do
     for j = 0 to Array.length d1.(0)-1 do
-      mw1.(i).(j+1) <- (mw1.(i).(j+1) -. (d1.(i).(j))*.0.2);
+      mw1.(i).(j+1) <- mw1.(i).(j+1) -. (0.3*.d1.(i).(j) +. 0.9*.(mw1.(i).(j+1) -. lmw1.(i).(j+1)));
     done;
+    mw1.(i).(0) <- dbias.(0);
   done;
   for i = 0 to Array.length d2 -1 do
       for j = 0 to Array.length d2.(0) -1 do
-      mw2.(i).(j+1) <- mw2.(i).(j+1) -. (d2.(i).(j)*.0.2);
+      mw2.(i).(j+1) <- mw2.(i).(j+1) -. (0.3*.d2.(i).(j) +. 0.9*.(mw2.(i).(j+1)-.  lmw2.(i).(j+1)));
     done;
+    mw2.(i).(0) <- dbias.(1);
   done;
 
 (* somme membre à membre de deux vecteurs *)  
@@ -112,37 +117,75 @@ in
   done;
   sol
 
+method output_evolution a b = 
+  for i = 0 to Array.length a-1 do 
+    print_float (b.(i) -. a.(i));
+    print_newline ()
+  done;
+  print_newline ();
+
+method print_error a = 
+  for i = 0 to Array.length a -1 do
+    print_float a.(i);
+    print_newline ()
+  done;
+  print_newline ();
+		   
+
 (* self explanatory *)
-method train (p:ann) inputs outputs =
+method train (p:ANN.ann) inputs outputs =
   let errors = Array.make_matrix 3 2 1.
   and delta1 =ref  (Array.make_matrix (Array.length (p#get 1)) (Array.length (p#get 1).(0)-1) 0.)
   and delta2 =ref  (Array.make_matrix (Array.length (p#get 2)) (Array.length (p#get 2).(0)-1) 0.)
-  in
-  errors.(0) <- Array.make 1 0.;
-  errors.(1) <- Array.make 2 0.;
-  errors.(2) <- Array.make 2 0.;
-  for i = 0 to 100000 do
-    for z = 0 to Array.length inputs -1 do
-      p#forward_propagation inputs.(z) (p#get 1) (p#get 2);
-      errors.(0) <- self#first_error (p#get_output 1) (outputs.(z));
-      errors.(1) <- (self#delta (p#get 2) errors.(0) (p#get_output 0)) ;
-      errors.(2) <- (self#delta (p#get 1) errors.(1) inputs.(z));
-      delta1 := self#sum_mat (!delta1) (self#mat_mult (inputs.(z)) errors.(1));
-      delta2 := self#sum_mat (!delta2) (self#mat_mult (p#get_output 0) errors.(0));
-    done;
-    delta1 := self#div_delta (Array.length inputs) !delta1;
-    delta2 := self#div_delta (Array.length inputs) !delta2;
-    self#update_weights (p#get 1) (p#get 2) !delta1 !delta2;
-    delta1 := (Array.make_matrix (Array.length (p#get 1)) (Array.length (p#get 1).(0)-1) 0.);
-    delta2 := (Array.make_matrix (Array.length (p#get 2)) (Array.length (p#get 2).(0)-1) 0.);
-    errors.(0) <- Array.make 1 0.;
-    errors.(1) <- Array.make 2 0.;
-    errors.(2) <- Array.make 2 0.;
-  done;
-
+  in let lastmw1 =ref  (p#get 1)
+  and lastmw2 =  ref (p#get 2)
+  and transitmw1 = ref (p#get 1)
+  and transitmw2 = ref (p#get 2)
+  and old_output =ref  (p#get_output 1)
+     in
+     errors.(0) <- Array.make 1 0.;
+     errors.(1) <- Array.make 2 0.;
+     errors.(2) <- Array.make 2 0.;
+     for i = 0 to 10000 do
+       for z = 0 to Array.length inputs -1 do
+	 p#forward_propagation inputs.(z) (p#get 1) (p#get 2);
+	 errors.(0) <- self#first_error (p#get_output 1) (outputs.(z));
+	 errors.(1) <- (self#delta (p#get 2) errors.(0) (p#get_output 0) 0) ;
+	 errors.(2) <- (self#delta (p#get 1) errors.(1) inputs.(z) 1);
+	 delta1 := self#sum_mat (!delta1) (self#mat_mult ( inputs.(z)) errors.(1));
+	 delta2 := self#sum_mat (!delta2) (self#mat_mult (p#get_output 0) errors.(0));
+	 if i mod 100 = 0 then
+	   begin
+	     (*print_string "debut";
+	     self#print_error errors.(0);
+	     self#print_error errors.(1);
+	     self#print_error errors.(2);
+	     print_string "fin \n";*)
+	     Printf.printf "%d eme couche  " z;
+	     self#output_evolution !old_output (p#get_output 1);
+	     old_output := (p#get_output 1);
+	   end;
+       done;
+       delta1 := self#div_delta (Array.length inputs) !delta1;
+       delta2 := self#div_delta (Array.length inputs) !delta2;
+       dbias.(0) <- dbias.(0)/.float_of_int (Array.length inputs);
+       dbias.(1) <- dbias.(1) /. float_of_int (Array.length inputs);
+       transitmw1 := p#get 1 ;
+       transitmw2 := p#get 2 ;
+       self#update_weights (p#get 1) (p#get 2) !delta1 !delta2 !lastmw1 !lastmw2;
+       dbias.(0) <- 0.;
+       dbias.(1) <- 0.;
+       lastmw1 := !transitmw1;
+       lastmw2 := !transitmw2;
+       delta1 := (Array.make_matrix (Array.length (p#get 1)) (Array.length (p#get 1).(0)-1) 0.);
+       delta2 := (Array.make_matrix (Array.length (p#get 2)) (Array.length (p#get 2).(0)-1) 0.);
+       errors.(0) <- Array.make 1 0.;
+       errors.(1) <- Array.make 2 0.;
+       errors.(2) <- Array.make 2 0.;
+     done;
   
 
-method all (p:ann) inputs (outputs:float array array) = 
+method all (p:ANN.ann) inputs (outputs:float array array) = 
   let sol = ref true
   and loop = ref true
   in
@@ -160,7 +203,7 @@ method all (p:ann) inputs (outputs:float array array) =
 	  |_ -> ()
       done;
     done;
-    sol := not !loop;
+    sol := false;
     loop := true;
   done;
 
@@ -168,5 +211,3 @@ method all (p:ann) inputs (outputs:float array array) =
   
 
 end;;
-
-
