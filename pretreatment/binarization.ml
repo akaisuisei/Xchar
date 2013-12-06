@@ -1,3 +1,4 @@
+
 (*Sdl *)
 let get_dims img =
   ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h);;
@@ -47,27 +48,27 @@ test
 
 
 
-(*Otsu's method to binarize the picture*)
+(*Otsu's method to binarize the picture, we also write the thresold and the variance*)
 
  let otsu img =
    let (width,height) = get_dims img in
    let sum = ref 0 and sumB = ref 0 in
    let wB = ref 0 and wF = ref 0 in
-   let varMax = ref 0. and treshold = ref 0 in
+   let varianceMax = ref 0. and treshold = ref 0 in
    let histo = ref [||] in
    histo := Array.make 256 0;
    for x = 0 to width-1 do
      for y = 0 to height-1 do
-       let current = int_of_float(255. *.(level (Sdlvideo.get_pixel_color img x y)) ) in
-       !histo.(current) <- !histo.(current) + 1;
+       let a = int_of_float(255. *.(level (Sdlvideo.get_pixel_color img x y)) ) in
+       !histo.(a) <- !histo.(a) + 1;
      done;
    done;
    for i = 0 to 255 do
      sum := !sum + i * !histo.(i);
    done;
-   let break = ref false in
+   let cond = ref false in
    for i = 0 to 255 do
-     if (not !break) then
+     if (not !cond) then
        begin
 	 wB := !wB + !histo.(i);
 	 if (!wB <> 0) then
@@ -75,15 +76,15 @@ test
 	     wF := (width*height) - !wB;
 	     if (!wF = 0) then
 	       begin
-		 break := true;
+		 cond := true;
                end 
 	     else
 	       begin
 		 sumB := !sumB + (i * !histo.(i));
 		 let mB = (float)(!sumB/(!wB)) and mF = (float)((!sum-(!sumB))/(!wF)) in
-		 let varB = (float) !wB *.(float) !wF *.(mB-.mF) *.(mB-.mF) in
-		 treshold := if varB > !varMax then i else !treshold;
-		 varMax := if varB > !varMax then varB else !varMax;
+		 let varianceB = (float) !wB *.(float) !wF *.(mB-.mF) *.(mB-.mF) in
+		 treshold := if varianceB > !varianceMax then i else !treshold;
+		 varianceMax := if varianceB > !varianceMax then varianceB else !varianceMax;
                end; 
            end;
        end;
