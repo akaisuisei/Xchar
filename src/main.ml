@@ -42,7 +42,7 @@ let main ()=
 	done;
 	sdl_init ();
 	let img = Sdlloader.load_image Sys.argv.(1) in
-	let (w,h) = get_dims img in 
+	let (w,h) = get_dims img in
 	let img1 = Pretreatment.image2gray img in
 	let img2 = Pretreatment.average (img1) 165 in
 	let img3 = Pretreatment.binarization (Pretreatment.average img1 140) 200 in

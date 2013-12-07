@@ -5,5 +5,3 @@ object
   method chg a = activation <- a
   method get = activation
 end;;
-
-  
