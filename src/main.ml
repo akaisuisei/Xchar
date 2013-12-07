@@ -31,12 +31,12 @@ let main ()=
 	for i = 0 to range -1 do
 		begin
 		match Sys.argv.(i) with
-			| "-r" -> if i + 1 < range -1 then
+			| "-r" -> if i + 1 < range then
 	  			begin
 	    			rotok := true;
 	    			d_rot := int_of_string (Sys.argv.(i+1))
 	  			end
-			| "-s" -> b_show := true
+			| "-s" -> b_show := true;
 			| _ -> ()
 		end
 	done;
@@ -47,10 +47,8 @@ let main ()=
 	let img2 = Pretreatment.average (img1) 165 in
 	let img3 = Pretreatment.binarization (Pretreatment.average img1 140) 200 in
 	let a = (fun x y b -> if b then x else y ) !d_rot (Rotation.detect_angle img3) !rotok in
-let img4 = Rotation.rotate img3 a in
-	let img5 = Recognition.recognition img4 in
+	let img4 = Rotation.rotate img3 a in
 	let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
-	(fun x -> if x then
 	show img display;
 	wait_key ();
 		show img1 display;
@@ -61,10 +59,7 @@ let img4 = Rotation.rotate img3 a in
 		wait_key ();
 		show img4 display;
 		wait_key ();
-		show img5 display;
-		wait_key ();
-	) !b_show;
-
+	let img5 = Recognition.recognition img4 in
 	show img5 display;
 	wait_key ();
 	exit 0
