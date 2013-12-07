@@ -31,4 +31,4 @@ let split text=
 	start :=  i+1;
       end 
   done;
-(!l);;
+(!l)
