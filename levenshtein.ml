@@ -17,5 +17,5 @@ let distance x y=
       end
     done;
   done;
-mat.(m-1).(n-1);;
+mat.(m-1).(n-1)
 
