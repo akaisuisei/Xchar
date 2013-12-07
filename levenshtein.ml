@@ -19,3 +19,16 @@ let distance x y=
   done;
 mat.(m-1).(n-1)
 
+let split text=
+  let l= ref [] in
+  let start= ref 0 in
+  for i=0 to (String.length text) do
+    if (i=String.length text || text.[i]=' '|| text.[i]=','|| text.[i]=';'|| text.[i]=':'|| text.[i]='!'|| text.[i]='?'|| text.[i]='.') then
+      begin
+	let str = (String.sub text (!start) (i- !start)) in
+	if (str<>" " && str<>"") then
+	  l := (String.lowercase str):: !l;
+	start :=  i+1;
+      end 
+  done;
+(!l);;
