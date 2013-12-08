@@ -3,6 +3,33 @@ let pi = 4. *. (atan 1.)
 (* Dimensions d'une image *)
 let get_dims img =
 	((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h)
+
+let get_red img x y= let (r,b,g) = Sdlvideo.get_pixel_color img x y in r
+
+let maximum x y z = max y (max y z) 
+let rec point_transform img maxx max_y w h  =
+	let x1= ref maxx and y1 = ref max_y and
+	r = get_red img maxx max_y in
+	if  maxx + 1 < w && max_y + 1 < h && r = 0 then
+		Sdlvideo.put_pixel_color img maxx max_y (255,255,255);
+		let (x,y) = point_transform img (maxx + 1) max_y w h and
+		(x2,y2) = point_transform img maxx (max_y + 1) w h in
+		y1 := maximum y  y2 max_y;
+		x1 := maximum x  x2 maxx;
+	(!x1,!y1)
+
+let img_transform img =
+	let (w,h) = get_dims img in
+	for x = 0 to (w - 1) do
+		for y =0 to (h - 1) do
+			let r = get_red img x y in
+			if r = 0 then
+				let (max_x,max_y) = point_transform img x y w h in
+				let (x2,y2) = ((max_x + x) / 2 ,(max_y + y) / 2) in
+				Sdlvideo.put_pixel_color img x2 y2 (100,100,100)
+		done
+	done;
+	img
 	
 let maxi matrix=
 	let maxis = ref 0 and m_i = ref 0 and  m_j = ref 0 in
@@ -25,7 +52,7 @@ let detect_angle img =
 	for x = 0 to w do
 		for y = 0 to h do
 			let (r,g,b) = Sdlvideo.get_pixel_color img x y in
-			if r = 0 then
+			if r = 100  then
 				begin
 				let maxRot = sqrt (float_of_int (w2 * w2 + h2 * h2)/.2.) in
 				let (xspec,yspec) = (float_of_int (x-w2 ),float_of_int (y-h2)) in
@@ -66,3 +93,8 @@ let rotate img angle =
 		done
 	done;
 img2
+
+let rotate_all img angle =
+	let img2 = img_transform img in
+	let a = detect_angle img2 in
+	rotate img a 

@@ -161,7 +161,7 @@ et renvoie l'image correspondante.*)
 let recognition img =
   begin
     let image = ref img in
-    let (maxHeight, lines) = normalizeH image in
-    normalizeW image maxHeight lines;
+    let (maxHeight, lines) = normalizeH !image in
+    normalizeW !image maxHeight lines;
     !image
   end
