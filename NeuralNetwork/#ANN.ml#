@@ -76,7 +76,7 @@ object (self)
 
 (* gets the weight's matrix *)
     method get a =
-      if a = 1 then mw1 else mw2
+     if a = 1 then mw1 else mw2
 
 (* Gets the output layer as a float array *)
     method get_output a =

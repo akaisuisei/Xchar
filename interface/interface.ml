@@ -52,7 +52,7 @@ let image=
   in
   GMisc.image
     ~pixbuf:buffer
-    ~packing:scroll#add ()
+    ~packing:scroll#add_with_viewport ()
 
 (*text*)
 
@@ -88,7 +88,7 @@ let ask_for_file parent _ =
 let _open =
   let button = GButton.tool_button
     ~stock:`OPEN
-    ~label:"New image"
+    ~label:"Importer image"
     ~packing:toolbar#insert () in
   ignore(button#connect#clicked ~callback: (ask_for_file window));
   button
@@ -126,15 +126,43 @@ let zoom_out =
     zo
 
 
+
+
+(*------------------------------------------*)
+(*----------------GRAY SCALE----------------*)
+(*------------------------------------------*)
+
+let processing ()=
+  Binarization.sdl_init ();
+  let img = Sdlloader.load_image (!file) in
+  let img3=Binarization.image2gray img in
+  Sdlvideo.save_BMP img3 "picture2.BMP";
+  file:="picture2.BMP";
+ image#set_file ("picture2.BMP")
+
+
+
+let process_button =
+  let pb = GButton.tool_button
+    ~stock:`EXECUTE
+    ~label:"Gris"
+    ~packing:toolbar#insert () in
+    ignore(pb#connect#clicked ~callback:processing);
+    pb
+
+
 (*------------------------------------------*)
 (*----------------PROCESSING----------------*)
 (*------------------------------------------*)
 
 
+
+
 let processing ()=
   Binarization.sdl_init ();
   let img = Sdlloader.load_image (!file) in
-  let img2= ( Binarization.binarization img (Binarization.otsu (Binarization.image2gray img) )) in
+  let img3=Binarization.image2gray img in
+  let img2= ( Binarization.binarization img3 ((Binarization.otsu img3 )-35)) in
   Sdlvideo.save_BMP img2 "picture2.BMP";
   file:="picture2.BMP";
  image#set_file ("picture2.BMP")
@@ -184,20 +212,52 @@ let quit =
 (*------------------------------------------*)
 (*-------------SPELL CHECK------------------*)
 (*------------------------------------------*)
+let language= ref "fr_FR"
 
 let spell _ =
   if(text_output#get_text () <> "") then
     if(GtkSpell.is_attached textview) then
-      GtkSpell.set_language textview (Some "fr_FR")
-    else GtkSpell.attach ?lang:(Some "fr_FR") textview
+      GtkSpell.set_language textview (Some !language)
+    else GtkSpell.attach ?lang:(Some !language) textview
+
+let fr _ = language := "fr_FR"
+let en _ = language := "en_EN"
+let de _ = language := "de_DE"
+
+let languages =
+  let menu = GMenu.menu () in
+    let item_fr = GMenu.menu_item ~label:"Français" ~packing:menu#add () in
+    let item_en = GMenu.menu_item ~label:"English" ~packing:menu#add () in
+    let item_de = GMenu.menu_item ~label:"Deutsch" ~packing:menu#add () in
+      ignore(item_fr#connect#activate ~callback:fr);
+      ignore(item_en#connect#activate ~callback:en);
+      ignore(item_de#connect#activate ~callback:de);
+  menu
 
 let spell_check =
   let sc = GButton.menu_tool_button
+    ~menu:languages
     ~stock:`SPELL_CHECK
     ~packing:toolbar#insert () in
     ignore(sc#connect#clicked ~callback:spell);
     sc
 
+(*------------------------------------------*)
+(*----------------COPY----------------------*)
+(*------------------------------------------*)
+
+let str = GData.clipboard Gdk.Atom.clipboard
+
+let copy_function _ =
+  str#clear ();
+  str#set_text (text_output#get_text ())
+
+let copy_button =
+  let cb = GButton.tool_button
+    ~stock:`COPY
+    ~packing:toolbar#insert () in
+    ignore(cb#connect#clicked ~callback:copy_function);
+  cb 
 
 
 (*------------------------------------------*)

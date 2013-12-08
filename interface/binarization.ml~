@@ -21,7 +21,6 @@ let image2gray img=
       Sdlvideo.put_pixel_color test i j ( (color2gray (Sdlvideo.get_pixel_color img i j)));
     done;
   done;
-Sdlvideo.save_BMP (test) "temp2.bmp";
 test
 ;;
 
@@ -35,7 +34,7 @@ let binarization img thresold=
   let test= Sdlvideo.create_RGB_surface_format img [] w h in
   for i=0 to w-1 do
     for j=0 to h-1 do
-      if (first (Sdlvideo.get_pixel_color img i j) < thresold ) then
+      if (first (Sdlvideo.get_pixel_color img i j) < thresold+35 ) then
 	(
 	Sdlvideo.put_pixel_color test i j (0,0,0);
 	)
@@ -45,8 +44,8 @@ let binarization img thresold=
 	)
     done;
   done;
+Sdlvideo.save_BMP (test) "temp.bmp";
 test
-Sdlvideo.save_BMP (test) "temp3.bmp";
 
 
 
@@ -91,7 +90,7 @@ Sdlvideo.save_BMP (test) "temp3.bmp";
            end;
        end;
    done;
-  !treshold;
+  !treshold;;
  
 (*...*)
 

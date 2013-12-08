@@ -2,19 +2,6 @@
 let get_dims img =
   ((Sdlvideo.surface_info img).Sdlvideo.w, (Sdlvideo.surface_info img).Sdlvideo.h)
 
-(*Retourne la valeur maximum d'une liste
-  d'entiers.*)
-let max list =
-  begin
-    let maximum = ref 0 in
-      for i=0 to (List.length list) - 1 do
-        if !maximum < (List.nth list i) then
-          maximum := List.nth list i
-      done;
-      !maximum
-  end
-
-(*Renvoie la copie d'une image.*)
 let copyImg img =
   begin
     let width = (Sdlvideo.surface_info img).Sdlvideo.w
@@ -28,6 +15,147 @@ let copyImg img =
     done;
     surface
   end
+
+let rec exists (a,b) l = 
+  match l with
+    |[] -> false
+    |(x,y)::l1 -> 
+      if a = x & b = y then
+	true
+      else
+	false || exists (a,b) l1
+
+let rec print_list l1 =
+  match l1 with
+    |[] -> ()
+    |(a,b)::l ->
+      print_int a;
+      print_int b;
+      print_list l1
+
+let rec rec_get_chars img sol (startx,starty) =
+  if Sdlvideo.get_pixel_color img startx starty = Sdlvideo.black (*|| exists (startx, starty) !sol*) then
+    (sol := (startx,starty):: !sol;
+     rec_get_chars img sol (startx+1,starty) ;
+     rec_get_chars img sol (startx, starty+1);
+     ())
+  else
+    ()
+  
+let rec get_bounds1 l1 sol = 
+    match l1 with 
+      |[] -> sol
+      |(x,y)::l -> 
+	if x < sol then
+	  get_bounds1 l x
+	else
+	  get_bounds1 l sol
+
+let rec get_bounds2 l1 sol =
+    match l1 with 
+      |[] -> sol
+      |(x,y)::l -> 
+	if x > sol then
+	  get_bounds2 l x
+	else
+	  get_bounds2 l sol
+
+let rec get_bounds3 l1 sol =
+    match l1 with 
+      |[] -> sol
+      |(x,y)::l -> 
+	if y < sol then
+	  get_bounds3 l y
+	else
+	  get_bounds3 l sol
+
+let rec get_bounds4 l1 sol =
+    match l1 with 
+      |[] -> sol
+      |(x,y)::l -> 
+	if y > sol then
+	  get_bounds4 l y
+	else
+	  get_bounds4 l sol
+
+let get_box l1 sol = 
+  let xmax = get_bounds2 l1 0 in
+  let xmin = get_bounds1 l1 xmax
+  and ymax = get_bounds4 l1 0 in
+  let ymin = get_bounds3 l1 ymax
+  in
+  sol := (xmin,ymin,(xmax),(ymax)) :: !sol;
+  ()
+
+let rec check (x,y) l1 = 
+  match l1 with 
+    |[] -> true
+    |(a,b,c,d)::l -> 
+      if x > a & x < c & y > b & y < d then
+	false
+      else
+	true & check (x,y) l
+
+let get_all img boxs p = 
+  let width = (Sdlvideo.surface_info img).Sdlvideo.w
+  and height = (Sdlvideo.surface_info img).Sdlvideo.h in
+  for i = 0 to height-1 do
+    for j = 0 to width-1 do
+      if Sdlvideo.get_pixel_color img j i = Sdlvideo.black (*& check (j,i) !boxs*) then
+	begin
+	  rec_get_chars img p (j,i);
+	  get_box !p boxs;
+	  p := []
+	end
+    done;
+  done;
+  ()
+      
+let end_of_it_all img = 
+  let boxs = ref []
+  and p = ref [] in
+  get_all img boxs p;
+  !boxs
+
+let line_it_up img xmin xmax ymin ymax = 
+  for i = xmin to xmax-1 do
+    for j = ymin to ymax-1 do
+      Sdlvideo.put_pixel_color img xmin j Sdlvideo.blue;
+      Sdlvideo.put_pixel_color img i ymin Sdlvideo.blue;
+    done;
+  done;
+  ()
+
+let draws_chars img boxs =
+  match boxs with
+    |[] -> img
+    |(a,b,c,d)::l -> line_it_up img a b c d;
+      img
+      
+
+
+
+    
+
+
+
+
+
+
+(*Retourne la valeur maximum d'une liste
+  d'entiers.*)
+let max list =
+  begin
+    let maximum = ref 0 in
+      for i=0 to (List.length list) - 1 do
+        if !maximum < (List.nth list i) then
+          maximum := List.nth list i
+      done;
+      !maximum
+  end
+
+(*Renvoie la copie d'une image.*)
+
 
 (*Colorie une ligne d'une image.*) (*Fonction test.*)
 let colorLine img ord =
@@ -204,12 +332,17 @@ let main () =
     let img = (Sdlloader.load_image Sys.argv.(1)) in
     let (w,h) = get_dims img in
     (* On crée la surface d'affichage en doublebuffering *)
-    let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
+      let display = Sdlvideo.set_video_mode w h [`DOUBLEBUF] in
       (* on affiche l'image *)
       show img display;
       (* on attend une touche *)
       wait_key ();
-      let image = recognition img in
+      (*let image = recognition img in *)
+      (*let img2 = copyImg img in*)
+      (*let l42 = ref [] in
+      rec_get_chars img l42 (0,0);*)
+      let boxs = end_of_it_all img in
+      let image = draws_chars img boxs in
       show image display;
       wait_key ();
       (* on quitte *)

@@ -20,7 +20,13 @@ let main () =
     for i = 0 to Array.length inputs -1 do 
       p#forward_propagation inputs.(i) (p#get 1) (p#get 2);
       p#get_result;
-    done
+    done;
+    p#saveToFile "prout";
+    p#loadFromFile "prout";
+    for z = 0 to Array.length inputs -1 do
+      p#forward_propagation inputs.(z) (p#get 1) (p#get 2);
+      p#get_result;
+    done;
   end
     
   
