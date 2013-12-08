@@ -34,7 +34,7 @@ let binarization img thresold=
   let test= Sdlvideo.create_RGB_surface_format img [] w h in
   for i=0 to w-1 do
     for j=0 to h-1 do
-      if (first (Sdlvideo.get_pixel_color img i j) < thresold ) then
+      if (first (Sdlvideo.get_pixel_color img i j) < thresold+25 ) then
 	(
 	Sdlvideo.put_pixel_color test i j (0,0,0);
 	)
