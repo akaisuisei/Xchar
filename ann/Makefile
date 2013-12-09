@@ -5,7 +5,7 @@
 SOURCES = ann.ml
 SOURCES += main.ml
 
-EXEC = test
+EXEC = t
 
 ###############################################################################
 ##################### DO NOT EDIT BELOW (OR YOU WILL DIE) #####################
@@ -86,5 +86,3 @@ depend: .depend
 	$(CAMLDEP) $(SMLIY) $(SMLIY:.ml=.mli) > .depend
 
 include .depend
-
-
